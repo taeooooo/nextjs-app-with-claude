@@ -1,3 +1,4 @@
+import Button from "@/components/Button"
 import StatsCard from "./_components/StatsCard"
 import { getDashboardStats } from "./_lib/stats"
 import styles from "./page.module.scss"
@@ -12,6 +13,11 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <StatsCard key={stat.id} stat={stat} />
         ))}
+      </div>
+      <div className={styles.actions}>
+        <Button variant="primary">내보내기</Button>
+        <Button variant="secondary">필터</Button>
+        <Button variant="ghost">초기화</Button>
       </div>
     </>
   )
