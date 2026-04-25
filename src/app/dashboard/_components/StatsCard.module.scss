@@ -1,26 +1,16 @@
-$border-color: #e5e7eb;
-$border-color-dark: #374151;
-$label-color: #6b7280;
-$positive-color: #16a34a;
-$negative-color: #dc2626;
-
 .card {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 24px;
   background: var(--background);
-  border: 1px solid $border-color;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
-
-  @media (prefers-color-scheme: dark) {
-    border-color: $border-color-dark;
-  }
 }
 
 .label {
   font-size: 13px;
-  color: $label-color;
+  color: var(--label-color);
 }
 
 .value {
@@ -33,10 +23,10 @@ $negative-color: #dc2626;
   font-weight: 500;
 
   &.positive {
-    color: $positive-color;
+    color: var(--positive-color);
   }
 
   &.negative {
-    color: $negative-color;
+    color: var(--negative-color);
   }
 }

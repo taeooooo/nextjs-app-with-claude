@@ -4,6 +4,72 @@
 
 @AGENTS.md
 
+## `"use client"` 선언 규칙
+
+- **hook 파일(`use*`)**: `"use client"` 작성하지 않는다. hook은 Client Component에서만 호출되므로 자명하다.
+- **컴포넌트 파일**: 부모에 `"use client"`가 있어 자동으로 클라이언트 요소가 되더라도 **반드시 직접 선언**한다. 파일만 보고 클라이언트/서버 여부를 즉시 판단할 수 있어야 한다.
+
+```ts
+// ✅ hook — "use client" 없음
+import { useState } from "react"
+export function useNavToggle() { ... }
+
+// ✅ component — 부모와 무관하게 직접 선언
+"use client"
+export default function Sidebar() { ... }
+```
+
+## 조건부 className
+
+조건부 또는 다중 className은 반드시 `clsx`를 사용한다. 템플릿 리터럴로 직접 조합하지 않는다.
+
+```tsx
+// ✅
+import clsx from "clsx"
+
+className={clsx(styles.btn, isActive && styles.active)}             // 조건부
+className={clsx(styles.text, isPrimary ? styles.primary : styles.secondary)}  // 조건부
+className={clsx(geistSans.variable, geistMono.variable)}            // 단순 다중
+
+// ❌
+className={`${styles.btn} ${isActive ? styles.active : ""}`}
+className={`${geistSans.variable} ${geistMono.variable}`}
+```
+
+## JSX 컨벤션
+
+의미 없는 래퍼 `<div>`는 사용하지 않는다. 그룹핑만 필요한 경우 Fragment(`<>`)를 사용한다. 스타일이나 레이아웃 역할이 있는 경우에만 `<div>`를 쓴다.
+
+```tsx
+// ✅
+return (
+  <>
+    <h1>제목</h1>
+    <p>내용</p>
+  </>
+)
+
+// ❌
+return (
+  <div>
+    <h1>제목</h1>
+    <p>내용</p>
+  </div>
+)
+```
+
+## React props 타입 컨벤션
+
+props 타입에 `Readonly<>` 래퍼를 사용하지 않는다. React props는 기본적으로 불변이므로 중복이다.
+
+```tsx
+// ✅
+function Layout({ children }: { children: ReactNode }) {}
+
+// ❌
+function Layout({ children }: Readonly<{ children: ReactNode }>) {}
+```
+
 ## TypeScript 컨벤션
 
 타입 선언은 `type`만 사용한다. `interface`는 사용하지 않는다.
@@ -15,6 +81,70 @@ type User = { id: string; name: string }
 // ❌
 interface User { id: string; name: string }
 ```
+
+React 타입은 `React.ReactNode` 대신 named import를 사용한다. 배열이나 list 렌더링에는 안정적인 고유 `id`를 key로 사용한다 (`index`나 `label` 같은 가변 값 금지).
+
+```ts
+// ✅
+import type { ReactNode } from "react"
+type Props = { children: ReactNode }
+
+// ❌
+type Props = { children: React.ReactNode }
+```
+
+```tsx
+// ✅  — id는 타입에 반드시 포함
+{items.map((item) => <Card key={item.id} ... />)}
+
+// ❌
+{items.map((item) => <Card key={item.label} ... />)}
+```
+
+## SCSS 컨벤션
+
+SCSS 파일 내에서 중복되는 스타일 로직은 `%placeholder`로 추출해 `@extend`로 재사용한다.
+
+```scss
+// ✅
+%nav-hoverable {
+  &:hover { background: var(--nav-hover); }
+}
+
+.toggleBtn { @extend %nav-hoverable; }
+.navItem   { @extend %nav-hoverable; }
+
+// ❌ — 동일 블록 반복
+.toggleBtn { &:hover { background: var(--nav-hover); } }
+.navItem   { &:hover { background: var(--nav-hover); } }
+```
+
+색상 토큰은 `src/app/globals.scss`의 CSS custom properties로 관리한다. dark mode 포함 모든 색상 분기가 이 파일 한 곳에서만 이루어진다. 컴포넌트 SCSS에서 `@media (prefers-color-scheme: dark)` 색상 분기는 작성하지 않는다.
+
+`src/styles/_variables.scss`는 `$sidebar-width`처럼 레이아웃·spacing 관련 컴파일 타임 상수만 둔다. 각 SCSS 파일에서 상대 경로로 `@use`한다. Turbopack은 `sassOptions.includePaths`를 지원하지 않으므로 절대/alias 경로는 사용할 수 없다.
+
+```scss
+// ✅ — 색상은 CSS custom properties로
+.card {
+  border: 1px solid var(--border-color);
+  color: var(--label-color);
+}
+
+// ✅ — 레이아웃 상수는 SCSS 변수로
+@use '../../../styles/variables' as *;
+
+.sidebar {
+  width: $sidebar-width;
+}
+
+// ❌ — 컴포넌트에서 색상 dark mode 분기
+.card {
+  border: 1px solid #e5e7eb;
+  @media (prefers-color-scheme: dark) { border-color: #374151; }
+}
+```
+
+Server Component에서 hook을 사용할 수 없다. hook이 필요한 UI는 `'use client'` 컴포넌트로 분리하고, Server Component인 layout/page는 그 컴포넌트를 자식으로 렌더링한다.
 
 ## 명령어
 
