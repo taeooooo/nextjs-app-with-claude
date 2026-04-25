@@ -1,0 +1,42 @@
+$border-color: #e5e7eb;
+$border-color-dark: #374151;
+$label-color: #6b7280;
+$positive-color: #16a34a;
+$negative-color: #dc2626;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: var(--background);
+  border: 1px solid $border-color;
+  border-radius: 12px;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $border-color-dark;
+  }
+}
+
+.label {
+  font-size: 13px;
+  color: $label-color;
+}
+
+.value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.change {
+  font-size: 13px;
+  font-weight: 500;
+
+  &.positive {
+    color: $positive-color;
+  }
+
+  &.negative {
+    color: $negative-color;
+  }
+}
