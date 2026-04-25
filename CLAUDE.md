@@ -149,13 +149,37 @@ Server Component에서 hook을 사용할 수 없다. hook이 필요한 UI는 `'u
 ## 명령어
 
 ```bash
-npm run dev      # 개발 서버 시작 (http://localhost:3000)
-npm run build    # 프로덕션 빌드
-npm run start    # 프로덕션 빌드 실행
-npm run lint     # ESLint
+npm run dev        # 개발 서버 시작 (http://localhost:3000)
+npm run build      # 프로덕션 빌드
+npm run start      # 프로덕션 빌드 실행
+npm run lint       # ESLint
+npm run test       # 테스트 watch 모드
+npm run test:run   # 테스트 단회 실행 (CI용)
 ```
 
-테스트 러너는 아직 설정되어 있지 않습니다.
+단일 파일만 실행:
+
+```bash
+npx vitest run src/app/dashboard/_components/StatsCard.test.tsx
+```
+
+## 테스트 컨벤션
+
+테스트 환경은 **Vitest + React Testing Library + happy-dom**이다.
+
+- 테스트 파일은 소스 파일과 같은 폴더에 `*.test.ts(x)` 로 배치한다.
+- CSS Module은 `identity-obj-proxy`로 mock된다. `className`이 실제 해시가 아닌 클래스명 문자열로 반환된다.
+- `next/link` 등 Next.js 모듈은 테스트 파일 안에서 `vi.mock()`으로 직접 mock한다.
+- `globals: true` 설정으로 `describe`, `it`, `expect`, `vi` 등을 import 없이 사용할 수 있다. 단, 명시적 import(`import { describe, it, expect, vi } from "vitest"`)도 허용한다.
+
+```ts
+// next/link mock 패턴
+vi.mock("next/link", () => ({
+  default: ({ children, href }: { children: ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
+}))
+```
 
 ## 프로젝트 폴더 구조 규칙
 
